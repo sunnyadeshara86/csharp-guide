@@ -12,6 +12,7 @@ In the context of C# and .NET, an .exe (executable) file is an executable that c
 
 The entry point in a C# program is typically represented by the Main() method, which is located in the Program class. This method must be static and serves as the starting point for the program’s execution. Usually, its structure looks like this:
 
+>
 > public class Program
 >
 > {
@@ -25,3 +26,4 @@ The entry point in a C# program is typically represented by the Main() method, w
 >     }
 >
 >}
+>

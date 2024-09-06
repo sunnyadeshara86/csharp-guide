@@ -366,6 +366,133 @@ SemaphoreSlim offers a WaitAsync method, which allows for asynchronously obtaini
 
 Asynchronous disposal in C# 8.0 provides a mechanism for objects to release resources asynchronously. The IAsyncDisposable interface introduces the DisposeAsync() method, which can be implemented to perform asynchronous cleanup operations. This is particularly beneficial for resources that require asynchronous interactions for their disposal, such as network streams or database connections. By allowing asynchronous disposal, resources can be released more efficiently, and it helps prevent potential deadlocks or blocking scenarios, especially in contexts that heavily rely on asynchronous operations.
 
+## Delegates, events, and lambda expressions
+
+### What are “event accessors” in C#, and how can they customize subscription or unsubscription logic?
+
+In C#, event accessors are the add and remove methods that define custom actions for subscribing to or unsubscribing from an event, respectively. They grant developers the capability to incorporate additional logic or validation when working with events. For example, you might want to limit the number of subscribers to an event or log every subscription. Customizing these accessors provides greater control over event behavior and interactions.
+
+### How does .NET implement lambda expressions at the compilation level? Do they become actual methods of a class?
+
+During compilation, lambda expressions are transformed into either anonymous methods or class methods, depending on their usage context. If a lambda captures only local variables, it might be represented as a static method. However, if it captures variables from its surrounding scope (closure), the compiler generates a special class to hold these captured variables, and the lambda becomes a method of this generated class. This transformation ensures that the lambda functionality is preserved while integrating seamlessly with the .NET type system.
+
+### What are the primary differences between lambda expressions and expression trees, and what opportunities does working with expression trees provide?
+
+While lambda expressions are functional constructs that can be executed directly, expression trees represent code as a structured data format. In other words, while lambdas execute logic, expression trees describe logic. Expression trees allow for the introspection, modification, or even dynamic generation of code at runtime. This capability is especially beneficial for scenarios such as object-relational mapping (ORM) systems, where one might want to convert LINQ queries into SQL queries, or for building custom compilers or interpreters.
+
+### Why can “multicast delegates” be problematic in modern applications, and what alternatives exist?
+
+Multicast delegates allow multiple handlers to respond to a single event. This can introduce complexities in management and debugging and can lead to unexpected side effects if not handled correctly. It becomes challenging to ensure the order of execution or handle exceptions thrown by individual delegate targets. An alternative is the use of events or the Observer pattern, which provides more structured and controlled ways to notify multiple subscribers.
+
+### How can one dynamically create functions based on lambda expressions at runtime?
+
+By using expression trees (Expression<TDelegate>), one can dynamically construct, modify, and compile lambda expressions at runtime. Expression trees represent code as data and can be transformed or inspected before being compiled into executable code using the Compile method.
+
+### What is understood by “closure” in the context of lambda expressions and anonymous methods, and how does it affect captured variables?
+
+A closure in the context of lambda expressions and anonymous methods refers to the ability of these constructs to capture and retain access to variables from their enclosing scope. The captured variables are stored in a way that they remain accessible and mutable even after the method in which they were declared has finished executing. This can lead to unexpected behaviors if not understood correctly, especially in multithreaded environments, where closures can introduce shared state across threads.
+
+### What can be the consequences if one of the event subscribers throws an exception during the event invocation? How does it impact other subscribers of that event, and what approaches can be employed for the graceful handling of such scenarios?
+
+If one of the event subscribers throws an exception during its execution, the subsequent subscribers in the invocation list won’t be executed. This means that other subscribers might miss the event notification. To mitigate this, one can invoke each delegate in the event’s invocation list separately, wrapped in a try-catch block. This ensures that an exception in one subscriber does not prevent the others from being invoked. Handling exceptions appropriately also ensures that the main logic isn’t interrupted unexpectedly.
+
+### What’s the difference between delegates and events, and how do they interoperate?
+
+While delegates are essentially type-safe function pointers that can point to one or more methods, events are a mechanism that allows a class to notify other classes or objects when something of interest occurs. Events use delegates behind the scenes to maintain a list of subscribers and to specify the signature of methods that can handle the event. In essence, events encapsulate delegates, adding an extra layer of protection and ensuring that only the owning class can raise an event.
+
+### How can lambda expressions be used in C#, and what are their advantages over delegates?
+
+Lambda expressions in C# are concise representations of anonymous methods using a clear and succinct syntax. They are often used with LINQ queries and other scenarios where short, inline methods are desirable. The primary advantages of lambda expressions over traditional delegate syntax are brevity and clarity. Lambda expressions provide a more readable and compact way to define inline methods without the need for explicit delegate instantiation.
+
+### What is the difference between “Func<T>”, “Action<T>”, and “Predicate<T>” in C#, and when should each be used?
+
+In C#, Func<T> is used for delegates that return a value, Action<T> for delegates that don’t return a value, and Predicate<T> for delegates that return a Boolean value. Specifically, do the following:
+
+> * Use Func when you need to compute or retrieve a result
+> * Use Action when you want to perform an operation or action without expecting a return value
+> * Use Predicate when you want to evaluate a condition and get a true or false result, typically for filtering or checking conditions
+
+### What challenges might arise when working with events, and how can they be mitigated?
+
+Working with events in C# presents several challenges, such as the following:
+
+> * Memory leaks: If subscribers don’t unsubscribe from events, it can lead to memory leaks, especially if the publisher has a longer lifetime than the subscriber
+> * Multithreading Issues: Accessing events from multiple threads can introduce race conditions, a situation where two or more threads attempt to modify shared data simultaneously, leading to unpredictable and erroneous outcomes
+> * Exception handling: If one subscriber’s handler throws an exception, it might prevent other handlers from executing
+
+To mitigate these challenges, follow these guidelines:
+
+> * Always unsubscribe from events when they’re no longer needed
+> * Use thread-safe methods to invoke events
+> * Wrap individual event invocations in try-catch blocks to ensure one handler’s exception doesn’t block others
+
+## How to use generic classes, methods, and interfaces to create reusable code
+
+### What is the purpose of generics in C#, and what advantages do they offer over using the “object” base type?
+
+Generics in C# provide a way to define classes, interfaces, and methods that operate on typed parameters while maintaining type safety and performance. Compared to using the object type, generics offer the following advantages:
+
+> * Type safety: Generics ensure that you are working with the correct data type, eliminating the risk of runtime type errors
+> * Performance: With generics, there’s no need for boxing or unboxing when dealing with value types, leading to more efficient operations
+> * Code reusability: Generics allow you to write a piece of code that works with different data types, reducing code duplication
+> * Elimination of type casting: With generics, explicit type casting is reduced, making the code cleaner and more readable
+
+### How do you define a generic class, and how does it differ from a standard class? How can you set constraints on generic type parameters?
+
+A generic class is defined using type parameters, typically denoted by angle brackets (<T>). While a standard class works with specific data types, a generic class can work with any data type, based on the type parameter provided at the time of instantiation. For instance, List<int> and List<string> are instances of the generic List<T> class but work with int and string types, respectively.
+
+Constraints on generic type parameters can be set using the where keyword. This allows you to limit the types that can be used as arguments for generics based on inheritance hierarchy, interfaces, or constructors. For example, class MyGenericClass<T> where T : MyClass, new(), ensures that T is or inherits from MyClass and has a parameterless constructor.
+
+### Can generics integrate with other key features of C# such as delegates or attributes?
+
+Yes – generics can be combined with various features in C#, such as the following:
+
+> * Delegates: You can define generic delegates, which can point to methods of various types
+> * Events: Events can be based on generic delegates
+> * Attributes: While you can’t create a generic attribute class, you can apply attributes to generic constructs
+
+### How are covariance and contravariance applied to generic interfaces and delegates in C#?
+
+In C#, covariance and contravariance provide flexibility in assigning and using generic types with interfaces and delegates in the following ways:
+
+> * Covariance (out keyword): Enables you to use a more derived type than originally specified. For example, you can assign an object of IEnumerable<Derived> to a variable of IEnumerable<Base>.
+> * Contravariance (in keyword): Allows for a less derived type. This is commonly seen with delegates.
+
+For instance, an interface can be defined as IInterface<out T> for covariance or IInterface<in T> for contravariance.
+
+### What are the characteristics of static fields and methods in generic classes compared to standard classes?
+
+In generic classes, static fields and methods are unique. For each type specialization of a generic class, there’s a separate set of static fields. This means that MyClass<int> and MyClass<string> will each have their own distinct instances of static fields. This behavior differs from non-generic classes, where there’s only one set of static fields shared across all instances of the class.
+
+### What does a “generic type extension method” mean, and how is it applied?
+
+A generic type extension method allows developers to add methods to existing types (both built-in and user-defined) without modifying them or creating new derived types. These are static methods defined in static classes but can be called as if they were instance methods on the extended type. They use the this keyword before the generic type parameter in the method signature, as in the following example:
+
+```
+public static class ExtensionMethods
+{
+    public static void MyMethod<T>(this T obj)
+    {
+        // Implementation here
+    }
+}
+```
+
+By using such extension methods, developers can enhance the functionality of existing types in a clean and modular way, benefiting from the flexibility and type safety provided by generics.
+
+### Can we inherit from generic type classes? What are the nuances of this process?
+
+Yes – you can inherit from generic type classes. When inheriting, you can do the following:
+
+> * You can specify a concrete type for the base generic class; for example, class Derived : Base<int> { }
+> * Alternatively, you can maintain the generic nature in the derived class: class Derived<T> : Base<T> { }
+
+It’s important to be aware of any type constraints placed on the base generic class, as these will also apply to the derived class.
+
+### What compilation mechanism is used for generic types? Is separate machine code generated for each specialized type?
+
+In .NET, generic types are compiled into a single template in Intermediate Language (IL). When a specific type instance is required at runtime, the Just-In-Time (JIT) compiler generates the specialized code. For value types (for example, int, double), separate code is generated for each type to ensure optimized performance. However, for reference types, the same code is shared, making the process more memory-efficient.
+
 ## Garbage collection
 
 ### What is the primary difference between the stack and heap in the context of memory management and garbage collection in C#?
